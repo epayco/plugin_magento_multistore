@@ -82,7 +82,7 @@ class Index extends \Magento\Framework\App\Action\Action
 
         $result = $this->resultJsonFactory->create();
         $data = $_REQUEST;
-        $rr = '';
+       
         if(isset($_REQUEST['order_id'])){
             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
             $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
