@@ -90,6 +90,8 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
      */
     public function execute()
     {
+        $server_name = str_replace('index.php','checkout/onepage/success/',$_SERVER['SCRIPT_NAME']);
+        $new_ulr = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME'].$server_name;
         $result = $this->resultJsonFactory->create();
         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         $urlRedirect = $this->scopeConfig->getValue('payment/epayco/payco_callback',$storeScope);
@@ -132,20 +134,20 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                     if($urlRedirect != ''){
                         return $this->resultRedirectFactory->create()->setUrl($urlRedirect);
                     } else {
-                        return $this->resultRedirectFactory->create()->setUrl('/');
+                        return $this->resultRedirectFactory->create()->setUrl($new_ulr);
                     }
                 }
 
                 if($urlRedirect != ''){
                     return $this->resultRedirectFactory->create()->setUrl($urlRedirect);
                 } else {
-                    return $this->resultRedirectFactory->create()->setUrl('/');
+                    return $this->resultRedirectFactory->create()->setUrl($new_ulr);
                 }
             } else {
                 if($urlRedirect != ''){
                     return $this->resultRedirectFactory->create()->setUrl($urlRedirect);
                 } else {
-                    return $this->resultRedirectFactory->create()->setUrl('/');
+                    return $this->resultRedirectFactory->create()->setUrl($new_ulr);
                 }
             }
         } else if(isset($_REQUEST['x_ref_payco'])){
