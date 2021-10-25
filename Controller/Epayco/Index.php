@@ -106,23 +106,25 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
 
             if(isset($dataTransaction) && isset($dataTransaction->success) && $dataTransaction->success){
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                $quoteReservedOrderId = $dataTransaction->data->x_id_invoice;
                 $orderId = (Integer)$dataTransaction->data->x_extra1;
                 $code = $dataTransaction->data->x_cod_response;
-
                 $order = $objectManager->create('\Magento\Sales\Model\Order')->loadByAttribute('quote_id',$orderId);
+
                 if($code == 1){
                     $order->setState(Order::STATE_PROCESSING, true);
                     $order->setStatus(Order::STATE_PROCESSING, true);
                 } else if($code == 3){
                     $order->setState($pendingOrderState, true);
                     $order->setStatus($pendingOrderState, true);
-                } else if($code == 2 || $code == 6 || $code == 9 || $code == 10 || $code == 11){
+                } else if($code == 2 ||
+                    $code == 4 ||
+                    $code == 6 ||
+                    $code == 9 ||
+                    $code == 10 ||
+                    $code == 11
+                ){
                     $order->setState(Order::STATE_CANCELED, true);
                     $order->setStatus(Order::STATE_CANCELED, true);
-                } else if($code == 4){
-                    $order->setState($pendingOrderState, true);
-                    $order->setStatus($pendingOrderState, true);
                 } else if($code == 12)  {
                     $order->setState(Order::STATUS_FRAUD, true);
                     $order->setStatus(Order::STATUS_FRAUD, true);
@@ -169,18 +171,20 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                 $order = $objectManager->create('Magento\Sales\Model\Order')->loadByAttribute('quote_id',$orderId);
 
                 if($code == 1){
-
                     $order->setState(Order::STATE_PROCESSING, true);
                     $order->setStatus(Order::STATE_PROCESSING, true);
                 } else if($code == 3){
                     $order->setState($pendingOrderState, true);
                     $order->setStatus($pendingOrderState, true);
-                } else if($code == 2 || $code == 6 || $code == 9 || $code == 10){
+                } else if($code == 2 ||
+                        $code == 4 ||
+                        $code == 6 ||
+                        $code == 9 ||
+                        $code == 10 ||
+                        $code == 11
+                ){
                     $order->setState(Order::STATE_CANCELED, true);
                     $order->setStatus(Order::STATE_CANCELED, true);
-                } else if($code == 4){
-                    $order->setState($pendingOrderState, true);
-                    $order->setStatus($pendingOrderState, true);
                 } else if($code == 12)  {
                     $order->setState(Order::STATUS_FRAUD, true);
                     $order->setStatus(Order::STATUS_FRAUD, true);

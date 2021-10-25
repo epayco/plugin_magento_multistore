@@ -5,8 +5,6 @@
  */
 namespace PagoEpayco\Payco\Model;
 
-
-
 /**
  * Pay In Store payment method model
  */
@@ -31,11 +29,11 @@ class Epayco extends \Magento\Payment\Model\Method\AbstractMethod
 	) {
 		return parent::isAvailable($quote);
 	}
-    
-    
-   
 
 
-  
+
+
+
+
 
 }

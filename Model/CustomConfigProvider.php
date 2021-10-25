@@ -5,6 +5,7 @@
 	use Magento\Checkout\Model\ConfigProviderInterface;
 	use Magento\ImportExport\Test\Unit\Model\Import\Entity\EavAbstractTest;
 	use PagoEpayco\Payco\Controller\PaymentController;
+
 	class CustomConfigProvider implements ConfigProviderInterface {
 		/**
 		 * {@inheritdoc}
@@ -29,7 +30,7 @@
 			$storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
 			$config = [
 				'payment' => [
-					'Epayco' => [
+					'epayco' => [
 						/**
 						 * payco_title
 						 * payco_description
@@ -57,7 +58,6 @@
                         'getOrderIncrementId'=>$this->epayco->getOrderIncrementId(),
                         'getQuoteIncrementId'=>$this->epayco->getQuoteIncrementId(),
                         'getQuoteIdData'=>$this->epayco->getQuoteIdData(),
-                        'text'=>$this->epayco->text(),
 						'language'=>$this->getLanguage()
 					]
 				]
