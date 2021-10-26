@@ -12,6 +12,10 @@ public function __construct(
 	\Magento\Quote\Model\QuoteManagement $quote_management,
 	\Magento\Checkout\Model\Cart $cart,
     \Magento\Sales\Model\Order $order
+    //OrderRepositoryInterface $orderRepository
+    //\Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory
+    //\Magento\Sales\Model\Order\Config $orderConfig,
+    //\Magento\Customer\Model\Session $customerSession
 ) {
 
 	$this->checkoutSession = $checkoutSession;
@@ -19,11 +23,19 @@ public function __construct(
 	$this->quoteManagement = $quote_management;
 	$this->cart = $cart;
     $this->order = $order;
+    //$this->orderRepository = $orderRepository;
+    /*$this->_orderCollectionFactory = $orderCollectionFactory;
+    $this->_orderConfig = $orderConfig;
+    $this->customerSession = $customerSession;*/
 
 	parent::__construct($context);
 }
 
+
+
 	public function execute(){}
+
+
 
 	public function responseAction($control = false)
 	{

@@ -26,6 +26,7 @@ define(
             },
             redirectAfterPlaceOrder: false,
             renderCheckout: async function() {
+
                 var countryBllg = quote.shippingAddress();
                 var customerData = checkoutData.getShippingAddressFromData();
                 var paymentData = {
