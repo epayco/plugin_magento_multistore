@@ -173,6 +173,7 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
             $x_amount = trim($_REQUEST['x_amount']);
             $x_signature = trim($_REQUEST['x_signature']);
             $x_extra1 = trim($_REQUEST['x_extra1']);
+            $x_extra2 = trim($_REQUEST['x_extra2']);
             $x_currency_code = trim($_REQUEST['x_currency_code']);
             $x_transaction_id = trim($_REQUEST['x_transaction_id']);
             $x_cod_transaction_state =trim($_REQUEST['x_cod_transaction_state']);
@@ -206,6 +207,8 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                     }
                     
                 }
+            }else{
+                $validation = false;
             }
 
             if($x_signature == $signature && $validation){
@@ -248,7 +251,12 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                 return $result->setData(['confirmed order']);
             }
             else{
-                $this->uploadInventory($orderId);
+                if($order->getState() != "canceled" ){
+                    $this->uploadStatusOrder($x_extra2);
+                    $this->uploadInventory($orderId);
+                    $order->setState(Order::STATE_CANCELED, true);
+                    $order->setStatus(Order::STATE_CANCELED, true);
+                }
                 return $result->setData(['no entro a la signature']);
             }
         } else {
@@ -279,6 +287,27 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                 }
             }
         }
+    }
+
+    public function uploadStatusOrder($increment_id){
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resource->getConnection();
+        $connection->update(
+            'sales_order',
+            ['state' => 'canceled'],
+            ['increment_id = ?' => $increment_id]
+        );
+        $connection->update(
+            'sales_order',
+            ['status' => 'canceled'],
+            ['increment_id = ?' => $increment_id]
+        );
+        $connection->update(
+            'sales_order_grid',
+            ['status' => 'canceled'],
+            ['increment_id = ?' => $increment_id]
+        );   
     }
 
     public function getRealOrderId()
