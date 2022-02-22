@@ -15,7 +15,7 @@ define(
         'Magento_Checkout/js/model/url-builder',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/place-order',
-        'https://checkout.epayco.co/checkout.js?version=1629309251348'
+        'https://checkout.epayco.co/checkout.js'
     ],
     function ($,Component,url,quote,checkoutData,messageContainer, urlBuilder, customer, placeOrderService) {
         'use strict';
@@ -26,7 +26,12 @@ define(
             },
             redirectAfterPlaceOrder: false,
             renderCheckout: async function() {
-
+                var button0 = document.getElementsByClassName('action primary checkout')[0];
+                var button1 = document.getElementsByClassName('action primary checkout')[1];
+                button0.style.disabled = true;
+                button1.style.disabled = true;
+                button0.disabled = true;
+                button1.disabled = true;
                 var countryBllg = quote.shippingAddress();
                 var customerData = checkoutData.getShippingAddressFromData();
                 var paymentData = {
@@ -101,9 +106,6 @@ define(
                                key: window.checkoutConfig.payment.epayco.payco_public_key,
                                test:test2
                            })
-                           var taxes = 0;
-                           taxes = totals._latestValue.base_tax_amount
-                           taxes = ''+taxes;
                            var items = '';
                            for(var i = 0; i <  window.checkoutConfig.quoteItemData.length; i++){
                                if(window.checkoutConfig.totalsData.items.length==1){
@@ -117,10 +119,6 @@ define(
                            var mobile = '';
                            var doc= '';
                            var country = '';
-                           //calcular base iva
-                           var tax_base = 0;
-                           tax_base = totals._latestValue.base_subtotal_with_discount;
-                           tax_base = ''+tax_base;
                            // fin calcular base iva
                            if(!window.checkoutConfig.isCustomerLoggedIn){
                                if(customerData){
@@ -139,8 +137,12 @@ define(
                            var lang = '';
                            var temp = window.checkoutConfig.payment.epayco.language.split("_");
                            lang = temp[0];
-                           var amount = '';
+                           var amount = 0;
                            amount = totals._latestValue.base_grand_total;
+                           var taxes = 0;
+                           taxes = totals._latestValue.base_tax_amount;
+                           var tax_base = 0;
+                           tax_base = amount - taxes;
 
                            var data={
                                //Parametros compra (obligatorio)
@@ -158,8 +160,6 @@ define(
                                //Atributos opcionales
                                extra1: orderId,
                                extra2: invoice,
-                               //extra3: getQuoteIncrement,
-                               //extra4: quoteIdData,
                                confirmation:url.build("confirmation/epayco/index"),
                                response: url.build("confirmation/epayco/index"),
                                //Atributos cliente
@@ -169,6 +169,10 @@ define(
                                mobilephone_billing: mobile,
                                number_doc_billing: doc
                            };
+                            button0.disabled = false;
+                            button1.disabled = false;
+                            button0.style.disabled = false;
+                            button1.style.disabled = false;
                             handler.open(data);
                        }
                     },
