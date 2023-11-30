@@ -176,8 +176,8 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
             $x_extra2 = trim($_REQUEST['x_extra2']);
             $x_currency_code = trim($_REQUEST['x_currency_code']);
             $x_transaction_id = trim($_REQUEST['x_transaction_id']);
-            $x_approval_code = trim($_REQUEST['x_approval_code']);
-            $x_cod_transaction_state = trim($_REQUEST['x_cod_transaction_state']);
+            $x_cod_transaction_state =trim($_REQUEST['x_cod_transaction_state']);
+            $x_approval_code =trim($_REQUEST['x_approval_code']);
             $p_cust_id_cliente = trim($this->scopeConfig->getValue('payment/epayco/payco_merchant',$storeScope));
             $p_key = trim($this->scopeConfig->getValue('payment/epayco/payco_key',$storeScope));
             $signature  = hash('sha256', $p_cust_id_cliente . '^' . $p_key . '^' . $x_ref_payco . '^' . $x_transaction_id . '^' . $x_amount . '^' . $x_currency_code);
@@ -206,7 +206,6 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                             $validation = false;
                         }
                     }
-
                 }
             }else{
                 $validation = false;
