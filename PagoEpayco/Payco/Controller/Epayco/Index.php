@@ -116,13 +116,16 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                 $orderId = (Integer)$dataTransaction->data->x_extra1;
                 $code = $dataTransaction->data->x_cod_response;
                 $order = $objectManager->create('\Magento\Sales\Model\Order')->loadByAttribute('quote_id',$orderId);
-
+                $x_extra2 = trim($dataTransaction->data->x_extra2);
                 if($code == 1){
                     if($order->getState() != "canceled"  ){
                         $order->setState(Order::STATE_PROCESSING, true);
                         $order->setStatus(Order::STATE_PROCESSING, true);
                     }
                 } else if($code == 3){
+                    if($order->getState() == "canceled"){
+                        $this->uploadInventory($orderId,'-');
+                    }
                     $order->setState($pendingOrderState, true);
                     $order->setStatus($pendingOrderState, true);
                 } else if($code == 2 ||
@@ -133,13 +136,13 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                     $code == 11
                 ){
                     if($order->getState() == "pending" || $order->getState() == "new" ){
-                        $this->uploadInventory($orderId);
+                        $this->uploadInventory($orderId,'+');
                     }
                     $order->setState(Order::STATE_CANCELED, true);
                     $order->setStatus(Order::STATE_CANCELED, true);
                 } else if($code == 12)  {
                     if($order->getState() == "pending" || $order->getState() == "new"){
-                        $this->uploadInventory($orderId);
+                        $this->uploadInventory($orderId,'+');
                     }
                     $order->setState(Order::STATUS_FRAUD, true);
                     $order->setStatus(Order::STATUS_FRAUD, true);
@@ -176,8 +179,8 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
             $x_extra2 = trim($_REQUEST['x_extra2']);
             $x_currency_code = trim($_REQUEST['x_currency_code']);
             $x_transaction_id = trim($_REQUEST['x_transaction_id']);
-            $x_cod_transaction_state =trim($_REQUEST['x_cod_transaction_state']);
-            $x_approval_code =trim($_REQUEST['x_approval_code']);
+            $x_approval_code = trim($_REQUEST['x_approval_code']);
+            $x_cod_transaction_state = trim($_REQUEST['x_cod_transaction_state']);
             $p_cust_id_cliente = trim($this->scopeConfig->getValue('payment/epayco/payco_merchant',$storeScope));
             $p_key = trim($this->scopeConfig->getValue('payment/epayco/payco_key',$storeScope));
             $signature  = hash('sha256', $p_cust_id_cliente . '^' . $p_key . '^' . $x_ref_payco . '^' . $x_transaction_id . '^' . $x_amount . '^' . $x_currency_code);
@@ -206,6 +209,7 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                             $validation = false;
                         }
                     }
+
                 }
             }else{
                 $validation = false;
@@ -214,13 +218,15 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
             if($x_signature == $signature && $validation){
                 $x_cod_transaction_state =trim($_REQUEST['x_cod_transaction_state']);
                 $code = (Integer)$x_cod_transaction_state;
-
                 if($code == 1){
                     if($order->getState() != "canceled"  ){
                         $order->setState(Order::STATE_PROCESSING, true);
                         $order->setStatus(Order::STATE_PROCESSING, true);
                     }
                 } else if($code == 3){
+                    if($order->getState() == "canceled"){
+                        $this->uploadInventory($orderId,'-');
+                    }
                     $order->setState($pendingOrderState, true);
                     $order->setStatus($pendingOrderState, true);
                 } else if($code == 2 ||
@@ -231,13 +237,13 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
                         $code == 11
                 ){
                     if($order->getState() == "pending" || $order->getState() == "new" ){
-                        $this->uploadInventory($orderId);
+                        $this->uploadInventory($orderId,'+');
                     }
                     $order->setState(Order::STATE_CANCELED, true);
                     $order->setStatus(Order::STATE_CANCELED, true);
                 } else if($code == 12)  {
                     if($order->getState() == "pending" || $order->getState() == "new" ){
-                        $this->uploadInventory($orderId);
+                        $this->uploadInventory($orderId,'+');
                     }
                     $order->setState(Order::STATUS_FRAUD, true);
                     $order->setStatus(Order::STATUS_FRAUD, true);
@@ -253,8 +259,8 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
             }
             else{
                 if($order->getState() != "canceled" ){
-                    $this->uploadStatusOrder($x_extra2);
-                    $this->uploadInventory($orderId);
+                    $this->uploadStatusOrder($x_extra2,'canceled');
+                    $this->uploadInventory($orderId,'+');
                     $order->setState(Order::STATE_CANCELED, true);
                     $order->setStatus(Order::STATE_CANCELED, true);
                 }
@@ -265,23 +271,28 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
         }
     }
 
-    public function uploadInventory($orderId){
+    public function uploadInventory($orderId, $operation){
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
-        $order = $objectManager->create('\Magento\Sales\Model\Order')->loadByAttribute('quote_id',$orderId);
-        $sql = "SELECT sku FROM quote_item WHERE quote_id = '$orderId'";
+        $sql = "SELECT sku,qty FROM quote_item WHERE quote_id = '$orderId'";
         $result = $connection->fetchAll($sql);
         if($result != null){
             foreach($result as $sku){
-                $sku  = $sku["sku"];
-                $sql_ = "SELECT MAX(reservation_id),sku,quantity FROM inventory_reservation WHERE sku = '$sku' ORDER BY reservation_id ASC";
+                $sku_  = $sku["sku"];
+                $quantity = $sku["qty"];
+                $sql_ = "SELECT MAX(reservation_id),sku,quantity FROM inventory_reservation WHERE sku = '$sku_' ORDER BY reservation_id ASC";
                 $query = $connection->fetchAll($sql_);
                 if($query != null){
                     foreach($query as $productInventory){
-                        $queryUpload = $connection->update(
+                        if($operation == '+'){
+                            $qty = '0.0000';
+                        }else{
+                            $qty = "-".$quantity;
+                        }
+                        $connection->update(
                             'inventory_reservation',
-                            ['quantity' => '0.0000'],
+                            ['quantity' => $qty],
                             ['reservation_id = ?' => $productInventory["MAX(reservation_id)"]]
                         );
                     }
@@ -290,23 +301,23 @@ class Index extends \Magento\Framework\App\Action\Action implements CsrfAwareAct
         }
     }
 
-    public function uploadStatusOrder($increment_id){
+    public function uploadStatusOrder($increment_id,$state){
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
         $connection->update(
             'sales_order',
-            ['state' => 'canceled'],
+            ['state' => $state],
             ['increment_id = ?' => $increment_id]
         );
         $connection->update(
             'sales_order',
-            ['status' => 'canceled'],
+            ['status' => $state],
             ['increment_id = ?' => $increment_id]
         );
         $connection->update(
             'sales_order_grid',
-            ['status' => 'canceled'],
+            ['status' => $state],
             ['increment_id = ?' => $increment_id]
         );
     }
