@@ -104,7 +104,7 @@ define(
                                window.checkoutConfig.payment.epayco.payco_test = "false";
                                var test2 = false;
                            }
-
+                           
                            var items = '';
                            for(var i = 0; i <  window.checkoutConfig.quoteItemData.length; i++){
                                if(window.checkoutConfig.totalsData.items.length==1){
@@ -170,7 +170,8 @@ define(
                                number_doc_billing: doc,
                                autoclick: "true",
                                ip: ip,
-                               test: test2.toString()
+                               test: test2.toString(),
+                               extras_epayco:{extra5:"p28"}
                            };
                             button0.disabled = false;
                             button1.disabled = false;
@@ -192,7 +193,7 @@ define(
                            }
                        }
                     },
-                    error :function(error){
+                    error :function(error){                   
                         console.log('error: '+error);
                     }
                 });
