@@ -189,6 +189,9 @@ define(
                                mobilephone_billing: mobile,
                                number_doc_billing: doc,
                                autoclick: "true",
+                               extras_epayco:{
+                                extra5:"P28"
+                               },
                                ip: ip,
                                test: test2.toString()
                            };
