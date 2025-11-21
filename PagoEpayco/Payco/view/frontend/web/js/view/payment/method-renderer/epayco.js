@@ -130,12 +130,12 @@ define(
                         var test = true;
                     }
                     let typeCheckout = checkoutConfig.payment.epayco.vertical_cs === 'true' ? 'standard' : 'onepage';
-                    let date_ = new Date();
+                    //let date_ = new Date().getTime();
                     var data={
                         //Parametros compra (obligatorio)
                         name: items,
                         description: items,
-                        invoice: invoice+'_'+date_.getTime(),
+                        invoice: invoice,
                         currency: currency,
                         amount: parseFloat(amount),
                         taxBase: parseFloat(tax_base),
