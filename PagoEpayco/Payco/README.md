@@ -26,10 +26,10 @@ Necesita tener instalado Magento 2 con todas sus dependencias y una cuenta en eP
 ```
 git clone https://github.com/epayco/plugin_magento_multistore.git
 ```
-2- Ingresar a la carpeta creada y copiar el contenido en su instalacion en magento en la ruta ruta/de/su/instalacion/app/code/
+2- Renombrar la carpeta creada como "Payco" y copiar el contenido en su instalacion en magento en la ruta: ruta/de/su/instalacion/app/code/PagoEpayco/
 ```
 cd magento2
-cp . -R /ruta/de/su/instalacion/app/code/
+cp . -R /ruta/de/su/instalacion/app/code/PagoEpayco/
 ```
 3- Dirigirse a la ruta de instalación de su magento 2 y ejecutar los siguientes comandos
 ```
@@ -40,6 +40,16 @@ php bin/magento setup:di:compile
 4- Si desea puede ejecutar el siguiente comando para verificar que el modulo esté habilitado
 ```
 php bin/magento module:status
+```
+
+5- Si desea configurar el cron de actualización de ordenes ejecuta el siguiente comando
+```
+php bin/magento cron:run
+```
+6- Si desea puede ejecutar la actualizacion de las ordenes de manera manual, Dirigirse a la ruta
+
+```
+https://mi-tienda/epayco/index/orderconsult
 ```
 
 ## Finalización
