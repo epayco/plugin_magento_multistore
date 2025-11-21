@@ -152,8 +152,6 @@ define(
                         },
                         confirmation:url.build("confirmation/epayco/index"),
                         response: url.build("confirmation/epayco/index"),
-                        //confirmation:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
-                        //response:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
                         forceResponse:false,//no mostrar el detalle de la transaccion
                         noRedirectOnClose: false,
                         uniqueTransactionPerBill:false,
