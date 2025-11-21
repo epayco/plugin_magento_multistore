@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="epayco-checkout" type="host">https://epayco-checkout-testing.s3.amazonaws.com</value>
+                <value id="apify-ms" type="host">https://eks-apify-service.epayco.io</value>
+                <value id="secure-epayco" type="host">https://eks-checkout-service.epayco.io</value>
+            </values>
+        </policy>
+
+        <policy id="connect-src">
+            <values>
+                <value id="epayco-create-transaction" type="host">https://eks-ms-checkout-transaction-service.epayco.io</value>
+                <value id="apify-private-epayco" type="host">https://eks-apify-private-service.epayco.io</value>
+                <value id="secure-epayco" type="host">https://epayco-checkout-testing.s3.amazonaws.com</value>
+                <value id="epayco-apify" type="host">https://eks-apify-service.epayco.io</value>
+                <value id="secure-epayco" type="host">https://eks-checkout-service.epayco.io</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>
