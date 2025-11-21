@@ -94,9 +94,11 @@ define(
                     var ip = this.getCustomerIp();
                     var checkoutConfig= window.checkoutConfig;
                     let stringNumber = "000000000";
+                    let increment_id = data.increment_id;
                     let number = parseInt(stringNumber, 10);
                     let result = number + data.order_id;
-                    let invoice = result.toString().padStart(9, '0');
+                    //let invoice = result.toString().padStart(9, '0');
+                    let invoice = increment_id;
                     localStorage.setItem("epayco_invoice", JSON.stringify(data));
                     var shippingAddress = quote.shippingAddress();
                     var billingAddress = quote.billingAddress();
@@ -123,122 +125,17 @@ define(
                         }else{
                             items += checkoutConfig.quoteItemData[i].product.name+',';
                         }
-
-                       if(invoice){
-                           if(window.checkoutConfig.payment.epayco.payco_test == "1"){
-                               window.checkoutConfig.payment.epayco.payco_test= "true";
-                               var test2 = true;
-                           } else {
-                               window.checkoutConfig.payment.epayco.payco_test = "false";
-                               var test2 = false;
-                           }
-
-                           var items = '';
-                           for(var i = 0; i <  window.checkoutConfig.quoteItemData.length; i++){
-                               if(window.checkoutConfig.totalsData.items.length==1){
-                                   items=window.checkoutConfig.quoteItemData[i].product.name;
-                               }else{
-                                   items += window.checkoutConfig.quoteItemData[i].product.name+',';
-                               }
-
-                           }
-
-                           // fin calcular base iva
-                           if(!window.checkoutConfig.isCustomerLoggedIn){
-                               if(customerData){
-                                   name_billing =  customerData.firstname + ' ' + customerData.lastname;
-                                   address_billing =  customerData.street[0]+ ' ' + customerData.street[1];
-                                   country = customerData.country_id;
-                               }else{
-                                   country = 'CO';
-                               }
-                           } else {
-                               name_billing = window.checkoutConfig.customerData.firstname + ' '+ window.checkoutConfig.customerData.lastname;
-                               mobile = countryBllg.telephone;
-                               address_billing = countryBllg.street[0];
-                               country = countryBllg.countryId;
-                           }
-                           var lang = '';
-                           var temp = window.checkoutConfig.payment.epayco.language.split("_");
-                           lang = temp[0];
-                           var amount = 0;
-                           amount = totals._latestValue.base_grand_total;
-                           var taxes = 0;
-                           taxes = totals._latestValue.base_tax_amount;
-                           var tax_base = 0;
-                           tax_base = amount - taxes;
-                           parseFloat(tax_base);
-
-                           var data={
-                               //Parametros compra (obligatorio)
-                               name: items,
-                               description: items,
-                               invoice: invoice,
-                               currency: window.checkoutConfig.quoteData.store_currency_code,
-                               amount: amount.toString(),
-                               tax_base: tax_base.toString(),
-                               tax: taxes.toString(),
-                               country: country,
-                               lang: lang,
-                               //Onpage='false' - Standard='true'
-                               external: window.checkoutConfig.payment.epayco.vertical_cs,
-                               //Atributos opcionales
-                               extra1: orderId,
-                               extra2: invoice,
-                               confirmation:url.build("confirmation/epayco/index"),
-                               response: url.build("confirmation/epayco/index"),
-                               //Atributos cliente
-                                email_billing:email,
-                               name_billing: name_billing,
-                               address_billing: address_billing,
-                               type_doc_billing: docType,
-                               mobilephone_billing: mobile,
-                               number_doc_billing: doc,
-                               autoclick: "true",
-                               extras_epayco:{
-                                extra5:"P28"
-                               },
-                               ip: ip,
-                               test: test2.toString()
-                           };
-                            button0.disabled = false;
-                            button1.disabled = false;
-                            button0.style.disabled = false;
-                            button1.style.disabled = false;
-                           const apiKey = window.checkoutConfig.payment.epayco.payco_public_key;
-                           const privateKey = window.checkoutConfig.payment.epayco.payco_private_key;
-                           if(localStorage.getItem("invoicePayment") == null){
-                               localStorage.setItem("invoicePayment", invoice);
-                               _this.makePayment(privateKey,apiKey,data, data.external == 'true'?true:false)
-                           }else{
-                               if(localStorage.getItem("invoicePayment") != invoice){
-                                   localStorage.removeItem("invoicePayment");
-                                   localStorage.setItem("invoicePayment", invoice);
-                                   _this.makePayment(privateKey,apiKey,data, data.external == 'true'?true:false)
-                               }else{
-                                    _this.makePayment(privateKey,apiKey,data, data.external == 'true'?true:false)
-                               }
-                           }
-                       }
-                    },
-                    error :function(error){
-                        //$('body').trigger('processStop');
-                         fullScreenLoader.stopLoader();
-                        alert({
-                            content: $.mage.__('Sorry, something went wrong. Please try again later.')
-                        });
-                        console.log('error: '+error);
                     }
                     if(checkoutConfig.payment.epayco.payco_test === "1"){
                         var test = true;
                     }
                     let typeCheckout = checkoutConfig.payment.epayco.vertical_cs === 'true' ? 'standard' : 'onepage';
-                    let date_ = new Date();
+                    //let date_ = new Date().getTime();
                     var data={
                         //Parametros compra (obligatorio)
                         name: items,
                         description: items,
-                        invoice: invoice+'_'+date_.getTime(),
+                        invoice: invoice,
                         currency: currency,
                         amount: parseFloat(amount),
                         taxBase: parseFloat(tax_base),
@@ -251,11 +148,12 @@ define(
                         //extra1: data.order_id,
                         extras:{
                             extra1: data.order_id,
+                            extra2: getQuoteId
                         },
-                        //confirmation:url.build("confirmation/epayco/index"),
-                        //response: url.build("confirmation/epayco/index"),
-                        confirmation:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
-                        response:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
+                        confirmation:url.build("confirmation/epayco/index"),
+                        response: url.build("confirmation/epayco/index"),
+                        //confirmation:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
+                        //response:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
                         forceResponse:false,//no mostrar el detalle de la transaccion
                         noRedirectOnClose: false,
                         uniqueTransactionPerBill:false,
@@ -280,8 +178,9 @@ define(
                         test: test,
                         checkout_version:"2",
                         extrasEpayco:{
-                            extra5:"P27"
-                        }
+                            extra5:"P28"
+                        },
+                        checkout_version:2
                     };
                     //console.log("data",data)
                     const apiKey = window.checkoutConfig.payment.epayco.payco_public_key.trim();

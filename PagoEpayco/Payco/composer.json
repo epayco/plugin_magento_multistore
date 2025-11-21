@@ -15,8 +15,10 @@
     "files": [
       "registration.php"
     ],
-    "psr-4": {
-      "PagoEpayco\\Payco\\": ""
+    "autoload": {
+        "files": [ "registration.php" ],
+        "psr-4": {
+            "PagoEpayco\\Payco\\": ""
+        }
     }
-  }
 }
