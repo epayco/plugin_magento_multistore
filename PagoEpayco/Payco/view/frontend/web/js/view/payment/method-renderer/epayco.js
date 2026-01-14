@@ -176,7 +176,7 @@ define(
                         test: test,
                         checkout_version:"2",
                         extrasEpayco:{
-                            extra5:"P27"
+                            extra5:"P28"
                         }
                     };
                     //console.log("data",data)
