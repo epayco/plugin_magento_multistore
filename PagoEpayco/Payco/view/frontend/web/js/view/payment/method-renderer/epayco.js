@@ -46,7 +46,7 @@ define(
                             localStorage.setItem("epayco_quote_id", getQuoteId);
                             var data = localStorage.getItem("epayco_invoice");
                             if (data) {
-                                _this.onEpaycoSuccess(data, _this);
+                                _this.onEpaycoSuccess(data, _this, getQuoteId);
                             } else {
                                 fullScreenLoader.stopLoader();
                                 alert({
@@ -64,7 +64,7 @@ define(
                                 async: false,
                                 data:  { "order_id": getQuoteId },
                                 success: function(data) {
-                                    _this.onEpaycoSuccess(data, _this);
+                                    _this.onEpaycoSuccess(data, _this, getQuoteId);
                                 },
                                 error: function(error) {
                                     fullScreenLoader.stopLoader();
@@ -89,7 +89,7 @@ define(
                     console.log('error: ' + error);
                 }
             },
-            onEpaycoSuccess: function(data, _this){
+            onEpaycoSuccess: function(data, _this, getQuoteId){
                 if(data.success){
                     var ip = this.getCustomerIp();
                     var checkoutConfig= window.checkoutConfig;
@@ -152,8 +152,6 @@ define(
                         },
                         confirmation:url.build("confirmation/epayco/index"),
                         response: url.build("confirmation/epayco/index"),
-                        //confirmation:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
-                        //response:"https://webhook.site/8a97f9af-02fe-4e95-a004-b4ae5f2f7843",
                         forceResponse:false,//no mostrar el detalle de la transaccion
                         noRedirectOnClose: false,
                         uniqueTransactionPerBill:false,
@@ -179,8 +177,7 @@ define(
                         checkout_version:"2",
                         extrasEpayco:{
                             extra5:"P28"
-                        },
-                        checkout_version:2
+                        }
                     };
                     //console.log("data",data)
                     const apiKey = window.checkoutConfig.payment.epayco.payco_public_key.trim();
